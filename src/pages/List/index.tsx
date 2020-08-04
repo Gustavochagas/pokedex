@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactPaginate from 'react-paginate';
+import { debounce } from 'lodash';
 
 import './style.sass';
 import { TPokemon, TPokemonInformations } from '../types';
 import * as pokemonsService from '../../services/getAllPokemons';
+import * as searchPokemon from '../../services/getOnePokemon';
 
 import SearchBar from './components/SearchBar';
 import PokemonItem from './components/PokemonItem';
@@ -13,26 +15,58 @@ const initialData: TPokemonInformations = {
   loading: true,
   error: false,
   offset: 0,
+  pages: 0,
 }
+
+const DEBOUNCE_MILLISECONDS = 500;
 
 const List = () => {
   const [pokemons, setPokemons] = useState(initialData.result);
   const [error, setError] = useState(initialData.error);
   const [loading, setLoading] = useState(initialData.loading);
   const [offset, setOffset] = useState(initialData.offset);
+  const [pages, setPages] = useState(initialData.pages);
 
   useEffect(() => {
-    getPokemons();
-  }, []);
+    getPokemons(offset);
+  }, [offset]);
 
-  const getPokemons = useCallback(async () => {
+  const getPokemons = useCallback(async (offset) => {
     try {
       const result = await pokemonsService.getPokemons(offset);
-      setPokemons(result);
+      setPokemons(result[0]);
+      setPages(result[1] / Math.ceil(10));
+      setError(false);
     } catch (e) {
       setError(true);
     }
     setLoading(false);
+  }, []);
+
+  const getPokemonByNameOrId = useCallback(async (info) => {
+    try {
+      if (info) {
+        const result = await searchPokemon.getPokemon(info);
+        setPokemons(result);
+        setPages(1);
+        setError(false);
+      } else {
+        const result = await pokemonsService.getPokemons(offset);
+        setPokemons(result[0]);
+        setPages(result[1] / Math.ceil(10));
+        setError(false);
+      }
+    } catch (e) {
+      setError(true);
+    }
+    setLoading(false);
+  }, []);
+
+  const handleSearchDebounce = useMemo(() => debounce(getPokemonByNameOrId, DEBOUNCE_MILLISECONDS), [getPokemonByNameOrId]);
+
+  const handleClick = useCallback((data) => {
+    const newOffset = offset === 0 ? data.selected * 10  : data.selected * offset;
+    setOffset(newOffset);
   }, [offset]);
 
   if (loading) {
@@ -43,34 +77,34 @@ const List = () => {
     )
   }
 
-  if (error) {
-    return (
-      <div className="error">
-        Error, refresh and try again...
-      </div>
-    )
-  }
-
   return (
     <div className="list">
-      <SearchBar />
-      <div className="pokemon-list container">
-        {pokemons.map(pokemon => (
-          <PokemonItem key={pokemon.name} name={pokemon.name} id={pokemon.id} />
-        ))}
-      </div>
-      <ReactPaginate
-          previousLabel={'previous'}
-          nextLabel={'next'}
-          breakLabel={'...'}
-          breakClassName={'break-me'}
-          pageCount={20}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          onPageChange={() => {}}
-          containerClassName={'pagination'}
-          activeClassName={'active'}
-        />
+      <SearchBar onSearch={handleSearchDebounce} />
+      {error ?
+        <div className="error">
+          Not found... try again
+        </div>
+        :
+        <>
+          <div className="pokemon-list container">
+            {pokemons.map(pokemon => (
+              <PokemonItem key={pokemon.name} name={pokemon.name} id={pokemon.id} />
+            ))}
+          </div>
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            breakClassName={'break-me'}
+            pageCount={pages}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={2}
+            onPageChange={(data) => handleClick(data)}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+          />
+        </>
+      }
     </div>
   )
 }

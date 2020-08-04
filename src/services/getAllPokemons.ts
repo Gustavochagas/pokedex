@@ -14,7 +14,8 @@ export const getPokemons = async (offset: number): Promise<any> => {
         id
       }
     });
-    return pokemons;
+    const total = data.count;
+    return [pokemons, total];
   } catch (e) {
     throw e;
   }
