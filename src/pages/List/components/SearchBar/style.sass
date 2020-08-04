@@ -1,0 +1,33 @@
+@import 'src/assets/styles/_variables.sass';
+
+.search-bar
+  width: 100%
+  padding: 2.5rem
+  background-color: $grey
+  display: flex
+  justify-content: center
+  align-items: center
+  flex-direction: column
+  .search-bar-block
+    position: relative
+    width: 300px
+    .search-bar-input
+      padding: 1rem
+      outline: none
+      font-size: 1rem
+      border-radius: 5px
+      border: 1px solid $dark-grey
+      width: 100%
+    &::after
+      transition: 0.2s
+      width: 0px
+      height: 2px
+      content: ""
+      background: $blue
+      position: absolute
+      left: 1.6rem
+      right: 1.6rem
+      bottom: 0
+    &:focus-within
+      &::after
+        width: calc(100% - 3.2rem
