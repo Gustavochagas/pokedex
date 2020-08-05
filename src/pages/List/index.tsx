@@ -7,6 +7,8 @@ import { TPokemon, TPokemonInformations } from '../types';
 import * as pokemonsService from '../../services/getAllPokemons';
 import * as searchPokemon from '../../services/getOnePokemon';
 
+import Pokeball from '../../assets/images/pokeball.png';
+
 import SearchBar from './components/SearchBar';
 import PokemonItem from './components/PokemonItem';
 
@@ -65,14 +67,14 @@ const List = () => {
   const handleSearchDebounce = useMemo(() => debounce(getPokemonByNameOrId, DEBOUNCE_MILLISECONDS), [getPokemonByNameOrId]);
 
   const handleClick = useCallback((data) => {
-    const newOffset = offset === 0 ? data.selected * 10  : data.selected * offset;
-    setOffset(newOffset);
+    setOffset(data.selected * 10);
   }, [offset]);
 
   if (loading) {
     return (
       <div className="loading">
-        Loading...
+        <img src={Pokeball} alt="Loading"/>
+        <span>Loading...</span>
       </div>
     )
   }
@@ -91,18 +93,20 @@ const List = () => {
               <PokemonItem key={pokemon.name} name={pokemon.name} id={pokemon.id} />
             ))}
           </div>
-          <ReactPaginate
-            previousLabel={'<'}
-            nextLabel={'>'}
-            breakLabel={'...'}
-            breakClassName={'break-me'}
-            pageCount={pages}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={2}
-            onPageChange={(data) => handleClick(data)}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-          />
+          {pokemons.length >= 10 &&
+            <ReactPaginate
+              previousLabel={'<'}
+              nextLabel={'>'}
+              breakLabel={'...'}
+              breakClassName={'break-me'}
+              pageCount={pages}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={2}
+              onPageChange={(data) => handleClick(data)}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+            />
+          }
         </>
       }
     </div>

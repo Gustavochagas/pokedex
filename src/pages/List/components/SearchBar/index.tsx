@@ -8,7 +8,7 @@ const SearchBar = ({ onSearch }: any) => {
   const handleSearch = useCallback((value: string) => {
     setSearch(value);
     onSearch(value);
-  }, []);
+  }, [onSearch]);
 
   return (
     <div className="search-bar">

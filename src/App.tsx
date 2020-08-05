@@ -1,10 +1,10 @@
 import React from 'react';
 
-import List from './pages/List';
+import Routes from './routes';
 
 function App() {
   return (
-    <List />
+    <Routes />
   );
 }
 

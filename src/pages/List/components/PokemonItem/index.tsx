@@ -11,7 +11,7 @@ const PokemonItem: React.FC<TPokemon> = ({ id, name }) => {
       </div>
       <div className="pokemon-item-content">
         <span className="pokemon-item-code">
-          Nº {id}
+          # {id}
         </span>
         <p className="pokemon-item-title">
           {name.charAt(0).toUpperCase() + name.slice(1)}

@@ -39,3 +39,16 @@
     align-items: center
     font-size: 1.6rem
     height: 100%
+.loading
+  display: flex
+  flex-direction: column
+  img
+    width: 60px
+    margin-bottom: 10px
+    animation: rotate 2s infinite
+
+@keyframes rotate
+	0%
+		transform: rotate(-350deg)
+	100%
+		transform: rotate(0deg)
